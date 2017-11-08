@@ -61,5 +61,6 @@ namespace TCGCF.API.Entities
         public DbSet<Legality> Legalities { get; set; }
         public DbSet<CardsInDeck> CardsInDeck { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Game> Games { get; set; }
     }
 }

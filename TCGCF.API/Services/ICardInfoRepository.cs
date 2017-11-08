@@ -7,16 +7,16 @@ namespace TCGCF.API.Services
     public interface ICardInfoRepository
     {
         //get all sets
-        IEnumerable<Set> GetSets();
+        IEnumerable<Set> GetSets(string abbr);
 
         //get specific set
-        Set GetSet(string Abbr, bool includeCards);
+        Set GetSet(string abbr, string setAbbr, bool includeCards);
 
         //get all cards for set
-        IEnumerable<Card> GetCardsForSet(string abbr);
+        IEnumerable<Card> GetCardsForSet(string abbr, string setAbbr);
 
         //get specific card for set
-        Card GetCardForSet(string abbr, int prtNum);
+        Card GetCardForSet(string abbr, string setAbbr, int prtNum);
 
         //get all decks
         IEnumerable<Deck> GetDecks();
@@ -31,7 +31,7 @@ namespace TCGCF.API.Services
         Card GetCardForDeck(int deckId, int cardId);
 
         //check if set exists
-        bool SetExists(string abbr);
+        bool SetExists(string abbr, string setAbbr);
 
         //check if deck exists
         bool DeckExists(int deckId);
@@ -50,5 +50,11 @@ namespace TCGCF.API.Services
 
         //save changes to database
         Task<bool> SaveChanges();
+
+        //get all games
+        IEnumerable<Game> GetGames();
+
+        //get specific set
+        Game GetGame(string abbr);
     }
 }

@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace TCGCF.API.Entities
 {
-    public class Set
+    public class Game
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -18,11 +21,7 @@ namespace TCGCF.API.Entities
         [MinLength(3)]
         public string Abbreviation { get; set; }
 
-        public ICollection<Card> Cards { get; set; } = new List<Card>();
-
-        [ForeignKey("GameId")]
-        public Game Game { get; set; }
-        public int GameId { get; set; }
+        public ICollection<Set> Sets { get; set; } = new List<Set>();
 
         //automatic update checking
         [Timestamp]

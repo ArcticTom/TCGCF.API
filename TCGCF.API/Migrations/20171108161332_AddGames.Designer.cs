@@ -12,9 +12,10 @@ using TCGCF.API.Entities;
 namespace TCGCF.API.Migrations
 {
     [DbContext(typeof(CardInfoContext))]
-    partial class CardInfoContextModelSnapshot : ModelSnapshot
+    [Migration("20171108161332_AddGames")]
+    partial class AddGames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -173,6 +173,7 @@ namespace TCGCF.API
                 c.CreateMap<DeckAddingDTO, Deck>();
                 c.CreateMap<DeckUpdatingDTO, Deck>();
                 c.CreateMap<Deck, DeckUpdatingDTO>();
+                c.CreateMap<Game, GameDTO>();
 
                 //to map to a versioned model
                 //c.CreateMap<Deck, DeckWithNoCardsDTOTest>().IncludeBase<Deck, DeckWithNoCardsDTO>();

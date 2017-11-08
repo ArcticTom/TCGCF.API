@@ -14,7 +14,7 @@ using TCGCF.API.Services;
 namespace TCGCF.API.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Route("api/set")]
+    [Route("api/game")]
     [ValidateModel]
     [ApiVersion("0.1")]     //api version supported
     public class SetCardController : Controller
@@ -32,19 +32,19 @@ namespace TCGCF.API.Controllers
         }
 
         //get all cards from set
-        [HttpGet("{abbr}/card")]
-        public IActionResult GetCards(string abbr)
+        [HttpGet("{abbr}/set/{setAbbr}/card")]
+        public IActionResult GetCards(string abbr, string setAbbr)
         {
             try
             {
 
-                if (!_cardInfoRepository.SetExists(abbr))
+                if (!_cardInfoRepository.SetExists(abbr, setAbbr))
                 {
-                    _logger.LogInformation($"Set with abbr {abbr} was not found.");
+                    _logger.LogInformation($"Set with abbr {abbr} and setAbbr {setAbbr} was not found.");
                     return NotFound();
                 }
 
-                var cardsForSet = _cardInfoRepository.GetCardsForSet(abbr);
+                var cardsForSet = _cardInfoRepository.GetCardsForSet(abbr, setAbbr);
 
                 var cardsForSetResults = Mapper.Map<IEnumerable<CardNoIdDTO>>(cardsForSet);
 
@@ -53,14 +53,14 @@ namespace TCGCF.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Exception on GetCards with abbr {abbr}.", ex);
+                _logger.LogCritical($"Exception on GetCards with abbr {abbr} and setAbbr {setAbbr}.", ex);
                 return StatusCode(500);
             }
         }
 
         //get specific card from specific set with ids
-        [HttpGet("{abbr}/card/{prtNum}")]
-        public IActionResult GetCard(string abbr, int prtNum)
+        [HttpGet("{abbr}/set/{setAbbr}/card/{prtNum}")]
+        public IActionResult GetCard(string abbr, string setAbbr, int prtNum)
         {
             try
             {
@@ -69,23 +69,23 @@ namespace TCGCF.API.Controllers
                 {
                     var oldETag = Request.Headers["If-None-Match"].First();
 
-                    if (_cache.Get($"CardForSet-{abbr}-{prtNum}-{oldETag}") != null)
+                    if (_cache.Get($"CardForSet-{setAbbr}-{prtNum}-{oldETag}") != null)
                     {
                         return StatusCode(304);
                     }
                 }
 
-                if (!_cardInfoRepository.SetExists(abbr))
+                if (!_cardInfoRepository.SetExists(abbr, setAbbr))
                 {
-                    _logger.LogInformation($"Set with abbr {abbr} was not found.");
+                    _logger.LogInformation($"Set with abbr {abbr} and setAbbr {setAbbr} was not found.");
                     return NotFound();
                 }
 
-                var cardForSet = _cardInfoRepository.GetCardForSet(abbr, prtNum);
+                var cardForSet = _cardInfoRepository.GetCardForSet(abbr, setAbbr, prtNum);
 
                 if (cardForSet == null)
                 {
-                    _logger.LogInformation($"Card with prtNum {prtNum} and abbr {abbr} was not found.");
+                    _logger.LogInformation($"Card with prtNum {prtNum}, abbr {abbr} and setAbbr {setAbbr} was not found.");
                     return NotFound();
                 }
 
@@ -101,7 +101,7 @@ namespace TCGCF.API.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Exception on GetCard with abbr {abbr} and prtNum {prtNum}.", ex);
+                _logger.LogCritical($"Exception on GetCard with abbr {abbr}, setAbbr {setAbbr} and prtNum {prtNum}.", ex);
                 return StatusCode(500);
             }
         }

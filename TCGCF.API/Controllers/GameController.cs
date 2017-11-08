@@ -15,70 +15,64 @@ namespace TCGCF.API.Controllers
     [Route("api/game")]
     [ValidateModel]
     [ApiVersion("0.1")]     //api version supported
-    public class SetController : Controller
+    public class GameController : Controller
     {
         //log to console
         private ILogger<SetController> _logger;
         private ICardInfoRepository _cardInfoRepository;
 
-        public SetController(ILogger<SetController> logger, ICardInfoRepository cardInfoRepository)
+        public GameController(ILogger<SetController> logger, ICardInfoRepository cardInfoRepository)
         {
             _logger = logger;
             _cardInfoRepository = cardInfoRepository;
         }
 
-        //gets all sets
-        [HttpGet("{abbr}/set")]
-        public IActionResult GetSets(string abbr)
+        //gets all games
+        [HttpGet()]
+        public IActionResult GetGames()
         {
             try
             {
-                var setEntities = _cardInfoRepository.GetSets(abbr);
+                var gameEntities = _cardInfoRepository.GetGames();
 
-                var results = Mapper.Map<IEnumerable<SetWithNoCardsDTO>>(setEntities);
+                var results = Mapper.Map<IEnumerable<GameDTO>>(gameEntities);
 
                 return Ok(results);
             }
             catch (Exception ex)
             {
-                _logger.LogCritical("Exception on GetSets.", ex);
+                _logger.LogCritical("Exception on GetGames.", ex);
                 return StatusCode(500);
             }
 
 
         }
 
-        //get specific set with abbr
-        [HttpGet("{abbr}/set/{setAbbr}")]
-        public IActionResult GetSet(string abbr, string setAbbr, bool includeCards = false)
+        //get specific game with abbr
+        [HttpGet("{abbr}")]
+        public IActionResult GetGame(string abbr)
         {
             try
             {
 
-                var set = _cardInfoRepository.GetSet(abbr, setAbbr, includeCards);
+                var game = _cardInfoRepository.GetGame(abbr);
 
-                if (set == null)
+                if (game == null)
                 {
                     return NotFound();
                 }
 
-                if (includeCards)
-                {
-                    var setResult = Mapper.Map<SetDTO>(set);
+                var gameResult = Mapper.Map<GameDTO>(game);
 
-                    return Ok(setResult);
-                }
-
-                var setwithNoCardsResult = Mapper.Map<SetWithNoCardsDTO>(set);
-
-                return Ok(setwithNoCardsResult);
+                return Ok(gameResult);
 
             }
             catch (Exception ex)
             {
-                _logger.LogCritical($"Exception on GetSet with abbr {abbr}.", ex);
+                _logger.LogCritical($"Exception on GetGame with abbr {abbr}.", ex);
                 return StatusCode(500);
             }
         }
+
     }
 }
