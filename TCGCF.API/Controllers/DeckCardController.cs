@@ -147,5 +147,45 @@ namespace TCGCF.API.Controllers
                 return StatusCode(500);
             }
         }
+
+        //add a cards to deck with id
+        [HttpPost("{deckId}/cards")]
+        public async Task<IActionResult> AddCardsToDeck(int deckId, [FromBody] List<CardToDeckAddingDTO> cards)
+        {
+            try
+            {
+
+                if (cards == null)
+                {
+                    return BadRequest();
+                }
+
+                if (!_cardInfoRepository.DeckExists(deckId))
+                {
+                    return NotFound();
+                }
+
+                var finalCards = Mapper.Map<IEnumerable<CardsInDeck>>(cards);
+
+                _cardInfoRepository.AddCardsToDeck(deckId, finalCards);
+
+                if (!(await _cardInfoRepository.SaveChanges()))
+                {
+                    return StatusCode(500, "Saving failed.");
+                }
+
+                var cardsForDeck = _cardInfoRepository.GetCardsForDeck(deckId);
+
+                var cardsForDeckResults = Mapper.Map<IEnumerable<CardDTO>>(cardsForDeck);
+
+                return Ok(cardsForDeckResults);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical($"Exception on AddCardsToDeck with deckId {deckId}.", ex);
+                return StatusCode(500);
+            }
+        }
     }
 }

@@ -99,6 +99,31 @@ namespace TCGCF.API.Services
             deck.Cards.Add(card);
         }
 
+        public void AddCardsToDeck(int deckId, IEnumerable<CardsInDeck> cardsToAdd)
+        {
+            var deck = GetDeck(deckId, true);
+            foreach(var card in cardsToAdd)
+            {
+                if(deckId == card.DeckId)
+                {
+                    deck.Cards.Add(card);
+                }
+            }
+        }
+
+        /*
+        public void UpdateMultiple()
+        {
+            var items = _context.Decks.ToList();
+            items.ForEach(s => s.Name += "Test");
+            OR _context.UpdateRange();
+
+            To execute own SQL statements
+            _context.FromSql("SELECT * FROM Decks").ToList();
+            _context.Database.ExecuteSqlCommand("UPDATE Decks SET Name = 'Test'");
+        }
+        */
+
         public void AddDeck(Deck deck)
         {
             _context.Decks.Add(deck);

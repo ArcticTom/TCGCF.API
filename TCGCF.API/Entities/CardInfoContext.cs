@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TCGCF.API.Entities
 {
@@ -30,6 +34,23 @@ namespace TCGCF.API.Entities
             builder.Entity<Set>()
                  .HasIndex(u => u.Abbreviation)
                  .IsUnique();
+
+            //add ModifiedDate and ModifiedBy to each table
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                builder.Entity(entityType.Name).Property<DateTime>("ModifiedDate");
+                builder.Entity(entityType.Name).Property<string>("ModifiedBy");
+            }
+        }
+
+        //set ModifiedDate when a record is saved
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        {
+            foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                entry.Property("ModifiedDate").CurrentValue = DateTime.Now;
+            }
+            return await base.SaveChangesAsync();
         }
 
 

@@ -39,6 +39,9 @@ namespace TCGCF.API.Services
         //add card to specific deck
         void AddCardToDeck(int deckId, CardsInDeck card);
 
+        //add cards to specific deck
+        void AddCardsToDeck(int deckId, IEnumerable<CardsInDeck> cards);
+
         //add new deck
         void AddDeck(Deck deck);
 
