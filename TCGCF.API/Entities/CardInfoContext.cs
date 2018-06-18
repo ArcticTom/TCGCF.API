@@ -22,7 +22,12 @@ namespace TCGCF.API.Entities
         public CardInfoContext(DbContextOptions<CardInfoContext> options) : base(options)
         {
             // this will ensure the newest version of the migrations is run
+            try {
             Database.Migrate();
+            } catch (Exception e)
+            {
+                Exception exception = e;
+            }
 
         }
 

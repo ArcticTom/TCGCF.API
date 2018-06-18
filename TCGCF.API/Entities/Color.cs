@@ -3,6 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCGCF.API.Entities
 {
+    public enum EColor { White, Red, Black, Blue, Green, Colorless }
+
     public class Color
     {
         [Key]
@@ -10,8 +12,7 @@ namespace TCGCF.API.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(200)]
-        public string Name { get; set; }
+        public EColor Name { get; set; }
 
         [ForeignKey("CardId")]
         public Card Card { get; set; }

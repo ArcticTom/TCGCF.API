@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCGCF.API.Entities
 {
+
+    public enum ERarity { Common, Uncommon, Rare, Mythic }
+
     public class Rarity
     {
         [Key]
@@ -10,8 +13,7 @@ namespace TCGCF.API.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(200)]
-        public string Name { get; set; }
+        public ERarity Name { get; set; }
 
         [ForeignKey("CardId")]
         public Card Card { get; set; }

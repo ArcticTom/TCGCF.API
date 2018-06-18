@@ -10,15 +10,11 @@ namespace TCGCF.API
         public static void Main(string[] args)
         {
             //build default webhost
-            WebHost.CreateDefaultBuilder()
-            .UseStartup<Startup>()
-            .Build()
-            .Run();
-
+            CreateWebHostBuilder(args).UseStartup<Startup>().Build().Run();
         }
 
         //only used for entity framework tooling
-        public static IWebHost BuildWebHost(string[] args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
         {
             return WebHost.CreateDefaultBuilder()
             .ConfigureAppConfiguration((ctx, cfg) =>
@@ -28,9 +24,7 @@ namespace TCGCF.API
                 .AddEnvironmentVariables();
             })
             .ConfigureLogging((ctx, logging) => { }) // No logging
-            .UseStartup<Startup>()
-            .UseSetting("DesignTime", "true") //set DesignTime to true
-            .Build();
+            .UseStartup<Startup>();       
         }
 
     }

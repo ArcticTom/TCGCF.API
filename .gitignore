@@ -261,3 +261,5 @@ paket-files/
 __pycache__/
 *.pyc
 /TCGCF.API/Ignore
+
+TCGCF\.API/\.vscode/

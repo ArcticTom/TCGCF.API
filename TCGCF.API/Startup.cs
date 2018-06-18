@@ -38,7 +38,7 @@ namespace TCGCF.API
 
             //set used database and connectionstring to dbcontext
             //gets connectionstring from appSettings.json for dev and from the environment variables for prod
-            services.AddDbContext<CardInfoContext>(o => o.UseSqlServer(Configuration["connectionStrings:TCGCardFetcher"]));
+            services.AddDbContext<CardInfoContext>(o => o.UseNpgsql(Configuration["connectionStrings:TCGCardFetcher"]));
 
             //add data fetch repository service
             services.AddScoped<ICardInfoRepository, CardInfoRepository>();
@@ -184,6 +184,7 @@ namespace TCGCF.API
             });
 
             //only initialize data if project is built running instead of entity framework tooling
+            
             if (Configuration["DesignTime"] != "true")
             {
                 using (var scope = app.ApplicationServices.CreateScope())
@@ -194,6 +195,7 @@ namespace TCGCF.API
                     cardInitializer.Seed().Wait();
                 }
             }
+
 
             //enable authentication
             app.UseAuthentication();

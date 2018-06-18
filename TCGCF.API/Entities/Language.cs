@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace TCGCF.API.Entities
 {
+
+    public enum ELanguage { English, German, French, Italian, Spanish, Portuguese, Japanese, Chinese, Russian, Korean }
+
     public class Language
     {
         [Key]
@@ -10,8 +13,7 @@ namespace TCGCF.API.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(200)]
-        public string Name { get; set; }
+        public ELanguage Name { get; set; }
 
         [ForeignKey("CardId")]
         public Card Card { get; set; }
