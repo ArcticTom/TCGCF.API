@@ -15,6 +15,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using AspNetCoreRateLimit;
+using Microsoft.AspNetCore.Http;
 
 namespace TCGCF.API
 {
@@ -131,7 +132,16 @@ namespace TCGCF.API
                 }
                 opt.Filters.Add(new RequireHttpsAttribute());
             }
-                ).AddMvcOptions(o => o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter())).AddMvcOptions(o => o.InputFormatters.Add(new XmlDataContractSerializerInputFormatter()));
+            ).AddMvcOptions(o => o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter())).AddMvcOptions(o => o.InputFormatters.Add(new XmlDataContractSerializerInputFormatter()));
+
+            services.AddAntiforgery(options =>
+            {
+                options.Cookie.Name = "_af";
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.HeaderName = "X-XSRF-TOKEN";
+            }
+            );
 
             /* #if DEBUG
              * Run at DEV
@@ -174,6 +184,16 @@ namespace TCGCF.API
                 c.CreateMap<DeckUpdatingDTO, Deck>();
                 c.CreateMap<Deck, DeckUpdatingDTO>();
                 c.CreateMap<Game, GameDTO>();
+                c.CreateMap<Format, FormatDTO>();
+                c.CreateMap<SetType, SetTypeDTO>();
+                c.CreateMap<Language, LanguageDTO>();
+                c.CreateMap<Rarity, RarityDTO>();
+                c.CreateMap<CardLayout, CardLayoutDTO>();
+                c.CreateMap<Color, ColorDTO>();
+                c.CreateMap<ColorIdentity, ColorIdentityDTO>();
+                c.CreateMap<CardSuperType, CardSuperTypeDTO>();
+                c.CreateMap<CardType, CardTypeDTO>();
+                c.CreateMap<CardSubType, CardSubTypeDTO>();
 
                 //to map to a versioned model
                 //c.CreateMap<Deck, DeckWithNoCardsDTOTest>().IncludeBase<Deck, DeckWithNoCardsDTO>();

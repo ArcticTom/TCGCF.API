@@ -20,8 +20,5 @@ namespace TCGCF.API.Entities
 
         public ICollection<CardsInDeck> Cards { get; set; } = new List<CardsInDeck>();
 
-        //automatic update checking
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
     }
 }

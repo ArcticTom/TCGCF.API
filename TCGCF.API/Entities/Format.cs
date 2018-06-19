@@ -32,8 +32,5 @@ namespace TCGCF.API.Entities
         public Game Game { get; set; }
         public int GameId { get; set; }
 
-        //automatic update checking
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
     }
 }

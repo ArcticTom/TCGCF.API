@@ -73,8 +73,5 @@ namespace TCGCF.API.Entities
 
         public Language Language { get; set; } = new Language();
 
-        //automatic update checking
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
     }
 }

@@ -17,7 +17,7 @@ namespace TCGCF.API.Services
 
         public bool SetExists(string abbr, string setAbbr)
         {
-            return _context.Sets.Any(c => c.Abbreviation == setAbbr && c.Game.Abbreviation == abbr);
+            return _context.Sets.Any(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper());
         }
 
         public bool DeckExists(int deckId)
@@ -37,9 +37,17 @@ namespace TCGCF.API.Services
 
         public Card GetCardForSet(string abbr, string setAbbr, int prtNum)
         {
-            var set = _context.Sets.Where(c => c.Abbreviation == setAbbr && c.Game.Abbreviation == abbr).FirstOrDefault();
+            var set = _context.Sets.Where(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper()).FirstOrDefault();
 
-            return _context.Cards.Include(c => c.Legality).Where(c => c.PrintNumber == prtNum && c.SetId == set.Id).FirstOrDefault();
+            return _context.Cards.Include(c => c.Legality)
+                .Include(c => c.Rarity)
+                .Include(c => c.CardLayout)
+                .Include(c => c.Language)
+                .Include(c => c.CardSuperType)
+                .Include(c => c.CardType)
+                .Include(c => c.CardSubType)
+                .Include(c => c.Color)
+                .Include(c => c.ColorIdentity).Where(c => c.PrintNumber == prtNum && c.SetId == set.Id).FirstOrDefault();
         }
 
         public IEnumerable<Card> GetCardsForDeck(int deckId)
@@ -56,9 +64,17 @@ namespace TCGCF.API.Services
 
         public IEnumerable<Card> GetCardsForSet(string abbr, string setAbbr)
         {
-            var set = _context.Sets.Where(c => c.Abbreviation == setAbbr && c.Game.Abbreviation == abbr).FirstOrDefault();
+            var set = _context.Sets.Where(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper()).FirstOrDefault();
 
-            return _context.Cards.Include(c => c.Legality).Where(c => c.SetId == set.Id).OrderBy(c => c.Id).ToList();
+            return _context.Cards.Include(c => c.Legality)
+                .Include(c => c.Rarity)
+                .Include(c => c.CardLayout)
+                .Include(c => c.Language)
+                .Include(c => c.CardSuperType)
+                .Include(c => c.CardType)
+                .Include(c => c.CardSubType)
+                .Include(c => c.Color)
+                .Include(c => c.ColorIdentity).Where(c => c.SetId == set.Id).OrderBy(c => c.Id).ToList();
         }
 
         public Deck GetDeck(int Id, bool includeCards)
@@ -81,15 +97,24 @@ namespace TCGCF.API.Services
         {
             if (includeCards)
             {
-                return _context.Sets.Include(c => c.Cards).ThenInclude(c => c.Legality).Where(c => c.Abbreviation == setAbbr && c.Game.Abbreviation == abbr).FirstOrDefault();
+                return _context.Sets.Include(c => c.SetType).Include(c => c.Cards).ThenInclude(c => c.Legality)
+                .Include(c => c.Cards).ThenInclude(c => c.Rarity)
+                .Include(c => c.Cards).ThenInclude(c => c.CardLayout)
+                .Include(c => c.Cards).ThenInclude(c => c.Language)
+                .Include(c => c.Cards).ThenInclude(c => c.CardSuperType)
+                .Include(c => c.Cards).ThenInclude(c => c.CardType)
+                .Include(c => c.Cards).ThenInclude(c => c.CardSubType)
+                .Include(c => c.Cards).ThenInclude(c => c.Color)
+                .Include(c => c.Cards).ThenInclude(c => c.ColorIdentity)
+                .Where(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper()).FirstOrDefault();
             }
 
-            return _context.Sets.Where(c => c.Abbreviation == setAbbr && c.Game.Abbreviation == abbr).FirstOrDefault();
+            return _context.Sets.Include(c => c.SetType).Where(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper()).FirstOrDefault();
         }
 
         public IEnumerable<Set> GetSets(string abbr)
         {
-            return _context.Sets.Where(s => s.Game.Abbreviation == abbr).OrderBy(c => c.Id).ToList();
+            return _context.Sets.Include(c => c.SetType).Where(s => s.Game.Abbreviation == abbr.ToUpper()).OrderBy(c => c.Id).ToList();
         }
 
         public void AddCardToDeck(int deckId, CardsInDeck card)
@@ -141,12 +166,12 @@ namespace TCGCF.API.Services
 
         public Game GetGame(string abbr)
         {
-            return _context.Games.Where(c => c.Abbreviation == abbr).FirstOrDefault();
+            return _context.Games.Include(c => c.Sets).Include(c => c.Formats).Where(c => c.Abbreviation == abbr.ToUpper()).FirstOrDefault();
         }
 
         public IEnumerable<Game> GetGames()
         {
-            return _context.Games.OrderBy(c => c.Id).ToList();
+            return _context.Games.Include(c => c.Sets).Include(c => c.Formats).OrderBy(c => c.Id).ToList();
         }
     }
 }

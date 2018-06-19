@@ -64,17 +64,6 @@ namespace TCGCF.API.Controllers
         {
             try
             {
-                //check if client already has the most recent version of the data
-                if (Request.Headers.ContainsKey("If-None-Match"))
-                {
-                    var oldETag = Request.Headers["If-None-Match"].First();
-
-                    if (_cache.Get($"CardForSet-{setAbbr}-{prtNum}-{oldETag}") != null)
-                    {
-                        return StatusCode(304);
-                    }
-                }
-
                 if (!_cardInfoRepository.SetExists(abbr, setAbbr))
                 {
                     _logger.LogInformation($"Set with abbr {abbr} and setAbbr {setAbbr} was not found.");
@@ -90,11 +79,6 @@ namespace TCGCF.API.Controllers
                 }
 
                 var cardResult = Mapper.Map<CardNoIdDTO>(cardForSet);
-
-                //supply client with etag to check concurrancy in future requests
-                var etag = Convert.ToBase64String(cardForSet.RowVersion);
-                Response.Headers.Add("ETag", etag);
-                _cache.Set($"CardForSet-{cardForSet.Set.Abbreviation}-{cardForSet.PrintNumber}-{etag}", cardForSet);
 
                 return Ok(cardResult);
 

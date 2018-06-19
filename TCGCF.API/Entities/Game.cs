@@ -51,8 +51,5 @@ namespace TCGCF.API.Entities
 
         public ICollection<Format> Formats { get; set; } = new List<Format>();
 
-        //automatic update checking
-        [Timestamp]
-        public byte[] RowVersion { get; set; }
     }
 }

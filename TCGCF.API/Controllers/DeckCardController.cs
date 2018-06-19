@@ -66,16 +66,6 @@ namespace TCGCF.API.Controllers
         {
             try
             {
-                //check if client already has most recent version
-                if (Request.Headers.ContainsKey("If-None-Match"))
-                {
-                    var oldETag = Request.Headers["If-None-Match"].First();
-
-                    if (_cache.Get($"CardForDeck-{cardId}-{oldETag}") != null)
-                    {
-                        return StatusCode(304);
-                    }
-                }
 
                 if (!_cardInfoRepository.DeckExists(deckId))
                 {
@@ -92,11 +82,6 @@ namespace TCGCF.API.Controllers
                 }
 
                 var cardResult = Mapper.Map<CardDTO>(cardForDeck);
-
-                //supply client with etag to ask for changes in data requested
-                var etag = Convert.ToBase64String(cardForDeck.RowVersion);
-                Response.Headers.Add("ETag", etag);
-                _cache.Set($"CardForDeck-{cardForDeck.Id}-{etag}", cardForDeck);
 
                 return Ok(cardResult);
 
