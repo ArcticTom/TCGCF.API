@@ -15,7 +15,7 @@ namespace TCGCF.API.Entities
         public string Name { get; set; }
 
         [Required]
-        public int PrintNumber { get; set; }
+        public string Number { get; set; }
 
         [MaxLength(1000)]
         public string FlavorText { get; set; }
@@ -38,10 +38,10 @@ namespace TCGCF.API.Entities
         public int CMC { get; set; }
 
         [Required]
-        public int Power { get; set; }
+        public string Power { get; set; }
 
         [Required]
-        public int Toughness { get; set; }
+        public string Toughness { get; set; }
 
         [Required]
         public int Loyalty { get; set; }

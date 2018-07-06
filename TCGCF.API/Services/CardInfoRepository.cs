@@ -35,7 +35,7 @@ namespace TCGCF.API.Services
             return null;
         }
 
-        public Card GetCardForSet(string abbr, string setAbbr, int prtNum)
+        public Card GetCardForSet(string abbr, string setAbbr, string prtNum)
         {
             var set = _context.Sets.Where(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper()).FirstOrDefault();
 
@@ -47,7 +47,7 @@ namespace TCGCF.API.Services
                 .Include(c => c.CardType)
                 .Include(c => c.CardSubType)
                 .Include(c => c.Color)
-                .Include(c => c.ColorIdentity).Where(c => c.PrintNumber == prtNum && c.SetId == set.Id).FirstOrDefault();
+                .Include(c => c.ColorIdentity).Where(c => c.Number == prtNum && c.SetId == set.Id).FirstOrDefault();
         }
 
         public IEnumerable<Card> GetCardsForDeck(int deckId)

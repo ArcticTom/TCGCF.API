@@ -16,6 +16,7 @@ using System.Text;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace TCGCF.API
 {
@@ -194,6 +195,21 @@ namespace TCGCF.API
                 c.CreateMap<CardSuperType, CardSuperTypeDTO>();
                 c.CreateMap<CardType, CardTypeDTO>();
                 c.CreateMap<CardSubType, CardSubTypeDTO>();
+
+                c.CreateMap<ImportSet, Set>()
+                    .ForMember(d => d.ReleaseDate, opt => opt.ResolveUsing(e => DateTime.ParseExact(e.ReleaseDate, "yyyy-MM-dd", null)))
+                    .ForMember(d => d.Abbreviation, opt => opt.MapFrom(e => e.Code))
+                    .ForMember(d => d.SetType, opt => opt.ResolveUsing(e => new SetType() { Name = e.Type}))
+                    .ForMember(d => d.NumberOfCards, opt => opt.ResolveUsing(e => e.NumberOfCards()));
+                c.CreateMap<ImportCard, Card>()
+                    .ForMember(d => d.FlavorText, opt => opt.MapFrom(e => e.Flavor))
+                    .ForMember(d => d.Number, opt => opt.MapFrom(e => e.Number))
+                    .ForMember(d => d.RulesText, opt => opt.MapFrom(e => e.Text))
+                    .ForMember(d => d.Image, opt => opt.ResolveUsing(e => "https://www.google.com/"))
+                    .ForMember(d => d.Loyalty, opt => opt.ResolveUsing(e => e.Loyalty == null ? 0 : e.Loyalty ))
+                    .ForMember(d => d.LinkedCard, opt => opt.ResolveUsing(e => 0 ))
+                    .ForMember(d => d.CardLayout, opt => opt.ResolveUsing(e => new CardLayout() { Type = e.Layout}));
+                c.CreateMap<ImportLegality, Legality>();
 
                 //to map to a versioned model
                 //c.CreateMap<Deck, DeckWithNoCardsDTOTest>().IncludeBase<Deck, DeckWithNoCardsDTO>();

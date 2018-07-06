@@ -60,7 +60,7 @@ namespace TCGCF.API.Controllers
 
         //get specific card from specific set with ids
         [HttpGet("{abbr}/set/{setAbbr}/card/{prtNum}")]
-        public IActionResult GetCard(string abbr, string setAbbr, int prtNum)
+        public IActionResult GetCard(string abbr, string setAbbr, string prtNum)
         {
             try
             {

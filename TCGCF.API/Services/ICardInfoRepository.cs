@@ -16,7 +16,7 @@ namespace TCGCF.API.Services
         IEnumerable<Card> GetCardsForSet(string abbr, string setAbbr);
 
         //get specific card for set
-        Card GetCardForSet(string abbr, string setAbbr, int prtNum);
+        Card GetCardForSet(string abbr, string setAbbr, string prtNum);
 
         //get all decks
         IEnumerable<Deck> GetDecks();
