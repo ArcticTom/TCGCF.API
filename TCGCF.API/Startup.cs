@@ -42,6 +42,8 @@ namespace TCGCF.API
             //gets connectionstring from appSettings.json for dev and from the environment variables for prod
             services.AddDbContext<CardInfoContext>(o => o.UseNpgsql(Configuration["connectionStrings:TCGCardFetcher"]));
 
+            services.AddDbContext<MaintenanceContext>(o => o.UseNpgsql(Configuration["connectionStrings:Maintenance"]));
+
             //add data fetch repository service
             services.AddScoped<ICardInfoRepository, CardInfoRepository>();
 
@@ -203,13 +205,15 @@ namespace TCGCF.API
                     .ForMember(d => d.NumberOfCards, opt => opt.ResolveUsing(e => e.NumberOfCards()));
                 c.CreateMap<ImportCard, Card>()
                     .ForMember(d => d.FlavorText, opt => opt.MapFrom(e => e.Flavor))
-                    .ForMember(d => d.Number, opt => opt.MapFrom(e => e.Number))
+                    .ForMember(d => d.Number, opt => opt.ResolveUsing(e => e.MciNumber == null ? "" : e.MciNumber ))
                     .ForMember(d => d.RulesText, opt => opt.MapFrom(e => e.Text))
                     .ForMember(d => d.Image, opt => opt.ResolveUsing(e => "https://www.google.com/"))
                     .ForMember(d => d.Loyalty, opt => opt.ResolveUsing(e => e.Loyalty == null ? 0 : e.Loyalty ))
                     .ForMember(d => d.LinkedCard, opt => opt.ResolveUsing(e => 0 ))
-                    .ForMember(d => d.CardLayout, opt => opt.ResolveUsing(e => new CardLayout() { Type = e.Layout}));
-                c.CreateMap<ImportLegality, Legality>();
+                    .ForMember(d => d.CardLayout, opt => opt.ResolveUsing(e => new CardLayout() { Type = e.Layout}))
+                    .ForMember(d => d.ColorIdentity, opt => opt.Ignore())
+                    .ForMember(d => d.Rarity, opt => opt.Ignore())
+                    .ForMember(d => d.Language, opt => opt.ResolveUsing(e => new Language() { CardName = e.Name, LanguageName = 0}));
 
                 //to map to a versioned model
                 //c.CreateMap<Deck, DeckWithNoCardsDTOTest>().IncludeBase<Deck, DeckWithNoCardsDTO>();

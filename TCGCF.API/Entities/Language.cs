@@ -13,7 +13,10 @@ namespace TCGCF.API.Entities
         public int Id { get; set; }
 
         [Required]
-        public ELanguage Name { get; set; }
+        public ELanguage LanguageName { get; set; }
+
+        [Required]
+        public string CardName { get; set; }
 
         [ForeignKey("CardId")]
         public Card Card { get; set; }

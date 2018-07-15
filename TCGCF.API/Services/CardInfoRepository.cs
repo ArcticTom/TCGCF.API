@@ -16,7 +16,7 @@ namespace TCGCF.API.Services
         }
 
         public bool SetExists(string abbr, string setAbbr)
-        {
+        {     
             return _context.Sets.Any(c => c.Abbreviation == setAbbr.ToUpper() && c.Game.Abbreviation == abbr.ToUpper());
         }
 

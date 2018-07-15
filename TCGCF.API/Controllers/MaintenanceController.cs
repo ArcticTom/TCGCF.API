@@ -34,7 +34,7 @@ namespace TCGCF.API.Controllers
         {
             try
             {
-                var task = DBUpdate.Begin(_configuration["urls:cardsJson"]);
+                var task = DBUpdate.Begin(_configuration);
 
                 return Ok();
             }

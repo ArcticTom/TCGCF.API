@@ -10,21 +10,145 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace TCGCF.API.Services
 {
     public class DBUpdate
     {
         
-        public static async Task<string> Begin(string url) {
+        public static async Task<string> Begin(IConfiguration config) {
 
-            var jsonresult = await DownloadJSON(url);
+            var jsonresult = "";
 
-            var modelresult = ConvertToModel(jsonresult);
+            try
+            {   
+                var optionsBuilder = new DbContextOptionsBuilder<MaintenanceContext>();
+                optionsBuilder.UseNpgsql(config["connectionStrings:Maintenance"]);
 
-            var enrichedModel = EnrichModel(modelresult);
+                using (MaintenanceContext context = new MaintenanceContext(optionsBuilder.Options))
+                {
+                    List<Game> _sample = new List<Game>
+                    {
+                        new Game() {
+                            Name = "Magic: The Gathering",
+                            Abbreviation = "MTG",
+                            Published = DateTime.Parse("1993-08-05 00:00:00.000000"),
+                            Publisher = "Wizards of the Coast",
+                            Website = "https://magic.wizards.com/en",
+                            Description = @"Magic can be played by two or more players in various formats, 
+                            which fall into two categories: constructed and limited. Limited formats involve players building a deck 
+                            spontaneously out of a pool of random cards with a minimum deck size of 40 cards. In constructed, 
+                            players created decks from cards they own, usually 60 cards with no more than 4 of any given card. 
+                            Magic is played in person with printed cards, or using a deck of virtual cards through the Internet-based 
+                            Magic: The Gathering Online, or on a smartphone or tablet, or through other programs. Each game represents 
+                            a battle between wizards known as planeswalkers, who employ spells, artifacts, and creatures depicted on 
+                            individual Magic cards to defeat their opponents.",
+                            AvailableOnConsole = true,
+                            AvailableOnMobile = true,
+                            AvailableOnPaper = true,
+                            AvailableOnPC = true,
+                            Formats = new List<Format>
+                            { 
+                                new Format() {
+                                    Name = "Standard",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Constructed",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Modern",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Constructed",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Legacy",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Constructed",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Vintage",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Constructed",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Commander",
+                                    NumberOfCards = 100,
+                                    CopyLimit = 1,
+                                    Category = "Casual",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Sealed",
+                                    NumberOfCards = 40,
+                                    CopyLimit = 40,
+                                    Category = "Limited",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Draft",
+                                    NumberOfCards = 40,
+                                    CopyLimit = 40,
+                                    Category = "Limited",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Pauper",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Casual",
+                                    Description = ""
+                                }
+                            }
+                        }
+      
+                    };
 
-            var dbresult = await SaveToDB(enrichedModel);
+                    context.Database.ExecuteSqlCommand("TRUNCATE TABLE \"Game\" RESTART IDENTITY CASCADE ;");
+
+                    context.Game.AddRange(_sample);
+                    
+                    await context.SaveChangesAsync();
+                }
+
+                JObject jObject = JObject.Load(new JsonTextReader(File.OpenText("enrichData.json")));
+                JArray resources = (JArray)jObject["set"];
+                foreach (var set in resources)
+                {
+                    jsonresult = await DownloadJSON("https://mtgjson.com/json/"+ set["id"].ToString() +"-x.json");
+
+                        using (MaintenanceContext context = new MaintenanceContext(optionsBuilder.Options))
+                        {
+                            if(jsonresult != null) {
+
+                                var modelresult = ConvertToModel(jsonresult);
+                                var enrichedModel = EnrichModel(modelresult);
+                                context.Sets.Add(enrichedModel);
+                                var nulls = enrichedModel.Cards.Where(item => item.Power == null);
+                                foreach(Card card in nulls) {
+                                    card.Power = " ";
+                                    card.Toughness = " ";
+                                }
+                                context.Cards.UpdateRange(nulls);
+                    
+                                await context.SaveChangesAsync();
+                            }
+
+
+                        }
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
 
             return jsonresult;
         }
@@ -54,6 +178,142 @@ namespace TCGCF.API.Services
 
                 var convertedModel = Mapper.Map<Set>(importSet);
 
+                //TODO beautify
+                #region manual mapping
+                foreach(ImportCard card in importSet.Cards) {
+
+                    if(card.MciNumber != null) {
+
+                        //first to allow for duplicates in data
+                        var newCard = convertedModel.Cards.First(x => x.Number == card.MciNumber);
+
+                        if(card.Supertypes != null) {
+
+                            foreach(string supertype in card.Supertypes) {
+
+                                var super = new CardSuperType();
+                                super.Name = supertype;
+                                newCard.CardSuperType.Add(super);
+                            } 
+                        }
+
+                        if(card.Types != null) {
+
+                            foreach(string type in card.Types) {
+
+                                var newType = new CardType();
+                                newType.Name = type;
+                                newCard.CardType.Add(newType);
+                            } 
+                        }
+
+                        if(card.Subtypes != null) {
+
+                            foreach(string subtype in card.Subtypes) {
+
+                                var sub = new CardSubType();
+                                sub.Name = subtype;
+                                newCard.CardSubType.Add(sub);
+                            } 
+                        }
+
+                        if(card.ColorIdentity != null) {
+
+                            foreach(string coloridentity in card.ColorIdentity) {
+
+                                var identity = new ColorIdentity();
+                                Enum.TryParse(coloridentity, out EColorIdentity ciEnum);
+                                identity.Name = ciEnum;
+                                newCard.ColorIdentity.Add(identity);
+                            } 
+                        }
+
+                        if(card.Colors != null) {
+
+                            foreach(string color in card.Colors) {
+
+                                var c = new Color();
+                                Enum.TryParse(color, out EColor cEnum);
+                                c.Name = cEnum;
+                                newCard.Color.Add(c);
+                            } 
+                        }
+
+                        if(card.Rarity != null) {
+
+                            var r = new Rarity();
+                            Enum.TryParse(card.Rarity, out ERarity rEnum);
+                            r.Name = rEnum;
+                            newCard.Rarity = r;
+                        }
+
+                        if(card.Legalities != null) {
+
+                            var legal = new Legality();
+
+                            foreach(ImportLegality legality in card.Legalities) {
+
+                                switch(legality.Format) {
+                                    case "Vintage": 
+                                        if(legality.Legality == "Legal") {
+                                            legal.Vintage = true;
+                                        }
+                                    break;
+                                    case "Legacy":
+                                        if(legality.Legality == "Legal") {
+                                            legal.Legacy = true;
+                                        }
+                                    break;
+                                    case "Commander":
+                                        if(legality.Legality == "Legal") {
+                                            legal.Commander = true;
+                                        }
+                                    break;
+                                    case "Modern":
+                                        if(legality.Legality == "Legal") {
+                                            legal.Modern = true;
+                                        }
+                                    break;
+                                    case "Standard":
+                                        if(legality.Legality == "Legal") {
+                                            legal.Standard = true;
+                                        }
+                                    break;
+                                    case "Arena":
+                                        if(legality.Legality == "Legal") {
+                                            legal.Arena = true;
+                                        }
+                                    break;
+                                    default:
+                                    break;
+
+                                }
+                            } 
+
+                            if(newCard.Rarity.Name == 0) {
+                                legal.Pauper = true;
+                            }
+
+                            newCard.Legality = legal;
+
+                        }
+                        
+                        if(card.Power == null) {
+
+                            newCard.Power = " ";
+
+                        }
+
+                        if(card.Toughness == null) {
+
+                            newCard.Toughness = " ";
+                        }
+
+                    }
+
+                }
+                #endregion
+
                 return convertedModel;
             }
             catch (Exception ex)
@@ -71,17 +331,10 @@ namespace TCGCF.API.Services
             {
                 model.Story = set["story"].ToString();
                 model.Symbol = set["symbol"].ToString();
-                model.GameId = 3;
+                model.GameId = 1;
             }
 
             return model;
-        }
-
-        public static async Task<bool> SaveToDB(Set model) {
-
-            
-
-            return true;
         }
     }
 }
