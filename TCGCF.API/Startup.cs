@@ -42,8 +42,6 @@ namespace TCGCF.API
             //gets connectionstring from appSettings.json for dev and from the environment variables for prod
             services.AddDbContext<CardInfoContext>(o => o.UseNpgsql(Configuration["connectionStrings:TCGCardFetcher"]));
 
-            services.AddDbContext<MaintenanceContext>(o => o.UseNpgsql(Configuration["connectionStrings:Maintenance"]));
-
             //add data fetch repository service
             services.AddScoped<ICardInfoRepository, CardInfoRepository>();
 
@@ -178,8 +176,12 @@ namespace TCGCF.API
                 c.CreateMap<Set, SetDTO>();
                 c.CreateMap<Deck, DeckWithNoCardsDTO>();
                 c.CreateMap<Deck, DeckDTO>();
-                c.CreateMap<Card, CardDTO>();
-                c.CreateMap<Card, CardNoIdDTO>();
+                c.CreateMap<Card, CardDTO>()
+                    .ForMember(d => d.Loyalty, opt => opt.ResolveUsing(e => e.Loyalty == 0 ? null : e.Loyalty ))
+                    .ForMember(d => d.LinkedCard, opt => opt.ResolveUsing(e => e.LinkedCard == 0 ? null : e.LinkedCard ));
+                c.CreateMap<Card, CardNoIdDTO>()
+                    .ForMember(d => d.Loyalty, opt => opt.ResolveUsing(e => e.Loyalty == 0 ? null : e.Loyalty ))
+                    .ForMember(d => d.LinkedCard, opt => opt.ResolveUsing(e => e.LinkedCard == 0 ? null : e.LinkedCard ));
                 c.CreateMap<CardsInDeck, CardsInDeckDTO>();
                 c.CreateMap<Legality, LegalityDTO>();
                 c.CreateMap<CardToDeckAddingDTO, CardsInDeck>();
@@ -187,13 +189,18 @@ namespace TCGCF.API
                 c.CreateMap<DeckUpdatingDTO, Deck>();
                 c.CreateMap<Deck, DeckUpdatingDTO>();
                 c.CreateMap<Game, GameDTO>();
+                c.CreateMap<Game, GameWithNoSetsDTO>();
                 c.CreateMap<Format, FormatDTO>();
                 c.CreateMap<SetType, SetTypeDTO>();
-                c.CreateMap<Language, LanguageDTO>();
-                c.CreateMap<Rarity, RarityDTO>();
+                c.CreateMap<Language, LanguageDTO>()
+                    .ForMember(d => d.LanguageName, opt => opt.ResolveUsing(e => e.LanguageString()));
+                c.CreateMap<Rarity, RarityDTO>()
+                    .ForMember(d => d.Name, opt => opt.ResolveUsing(e => e.RarityName()));
                 c.CreateMap<CardLayout, CardLayoutDTO>();
-                c.CreateMap<Color, ColorDTO>();
-                c.CreateMap<ColorIdentity, ColorIdentityDTO>();
+                c.CreateMap<Color, ColorDTO>()
+                    .ForMember(d => d.Name, opt => opt.ResolveUsing(e => e.ColorName()));
+                c.CreateMap<ColorIdentity, ColorIdentityDTO>()
+                    .ForMember(d => d.Name, opt => opt.ResolveUsing(e => e.ColorIdentityName()));
                 c.CreateMap<CardSuperType, CardSuperTypeDTO>();
                 c.CreateMap<CardType, CardTypeDTO>();
                 c.CreateMap<CardSubType, CardSubTypeDTO>();

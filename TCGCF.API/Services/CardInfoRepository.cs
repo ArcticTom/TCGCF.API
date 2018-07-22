@@ -164,14 +164,19 @@ namespace TCGCF.API.Services
             _context.Remove(deck);
         }
 
-        public Game GetGame(string abbr)
+        public Game GetGame(string abbr, bool includeSets)
         {
-            return _context.Games.Include(c => c.Sets).Include(c => c.Formats).Where(c => c.Abbreviation == abbr.ToUpper()).FirstOrDefault();
+            if (includeSets)
+            {
+                _context.Games.Include(c => c.Sets).ThenInclude(c => c.SetType).Include(c => c.Formats).Where(c => c.Abbreviation == abbr.ToUpper()).FirstOrDefault();
+            }
+
+            return _context.Games.Include(c => c.Formats).Where(c => c.Abbreviation == abbr.ToUpper()).FirstOrDefault();
         }
 
         public IEnumerable<Game> GetGames()
         {
-            return _context.Games.Include(c => c.Sets).Include(c => c.Formats).OrderBy(c => c.Id).ToList();
+            return _context.Games.Include(c => c.Formats).OrderBy(c => c.Id).ToList();
         }
     }
 }

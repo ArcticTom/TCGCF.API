@@ -55,6 +55,6 @@ namespace TCGCF.API.Services
         IEnumerable<Game> GetGames();
 
         //get specific set
-        Game GetGame(string abbr);
+        Game GetGame(string abbr, bool includeSets);
     }
 }

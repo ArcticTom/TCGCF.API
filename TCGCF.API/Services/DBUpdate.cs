@@ -23,10 +23,10 @@ namespace TCGCF.API.Services
 
             try
             {   
-                var optionsBuilder = new DbContextOptionsBuilder<MaintenanceContext>();
-                optionsBuilder.UseNpgsql(config["connectionStrings:Maintenance"]);
+                var optionsBuilder = new DbContextOptionsBuilder<CardInfoContext>();
+                optionsBuilder.UseNpgsql(config["connectionStrings:TCGCardFetcher"]);
 
-                using (MaintenanceContext context = new MaintenanceContext(optionsBuilder.Options))
+                using (CardInfoContext context = new CardInfoContext(optionsBuilder.Options))
                 {
                     List<Game> _sample = new List<Game>
                     {
@@ -36,14 +36,7 @@ namespace TCGCF.API.Services
                             Published = DateTime.Parse("1993-08-05 00:00:00.000000"),
                             Publisher = "Wizards of the Coast",
                             Website = "https://magic.wizards.com/en",
-                            Description = @"Magic can be played by two or more players in various formats, 
-                            which fall into two categories: constructed and limited. Limited formats involve players building a deck 
-                            spontaneously out of a pool of random cards with a minimum deck size of 40 cards. In constructed, 
-                            players created decks from cards they own, usually 60 cards with no more than 4 of any given card. 
-                            Magic is played in person with printed cards, or using a deck of virtual cards through the Internet-based 
-                            Magic: The Gathering Online, or on a smartphone or tablet, or through other programs. Each game represents 
-                            a battle between wizards known as planeswalkers, who employ spells, artifacts, and creatures depicted on 
-                            individual Magic cards to defeat their opponents.",
+                            Description = "Magic can be played by two or more players in various formats, which fall into two categories: constructed and limited. Limited formats involve players building a deck spontaneously out of a pool of random cards with a minimum deck size of 40 cards. In constructed, players create decks from cards they own, usually 60 cards with no more than 4 of any given card. Each game represents a battle between wizards known as planeswalkers, who employ spells, artifacts, and creatures depicted on individual Magic cards to defeat their opponents.",
                             AvailableOnConsole = true,
                             AvailableOnMobile = true,
                             AvailableOnPaper = true,
@@ -105,15 +98,29 @@ namespace TCGCF.API.Services
                                     CopyLimit = 4,
                                     Category = "Casual",
                                     Description = ""
+                                },
+                                new Format() {
+                                    Name = "Frontier",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Casual",
+                                    Description = ""
+                                },
+                                new Format() {
+                                    Name = "Arena",
+                                    NumberOfCards = 60,
+                                    CopyLimit = 4,
+                                    Category = "Constructed",
+                                    Description = ""
                                 }
                             }
                         }
       
                     };
 
-                    context.Database.ExecuteSqlCommand("TRUNCATE TABLE \"Game\" RESTART IDENTITY CASCADE ;");
+                    context.Database.ExecuteSqlCommand("TRUNCATE TABLE \"Games\" RESTART IDENTITY CASCADE;");
 
-                    context.Game.AddRange(_sample);
+                    context.Games.AddRange(_sample);
                     
                     await context.SaveChangesAsync();
                 }
@@ -124,7 +131,7 @@ namespace TCGCF.API.Services
                 {
                     jsonresult = await DownloadJSON("https://mtgjson.com/json/"+ set["id"].ToString() +"-x.json");
 
-                        using (MaintenanceContext context = new MaintenanceContext(optionsBuilder.Options))
+                        using (CardInfoContext context = new CardInfoContext(optionsBuilder.Options))
                         {
                             if(jsonresult != null) {
 

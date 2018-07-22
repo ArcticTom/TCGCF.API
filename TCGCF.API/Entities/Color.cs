@@ -17,5 +17,10 @@ namespace TCGCF.API.Entities
         [ForeignKey("CardId")]
         public Card Card { get; set; }
         public int CardId { get; set; }
+
+        public string ColorName() { 
+            EColor enumColor = (EColor)Name;
+            return enumColor.ToString();
+        }
     }
 }

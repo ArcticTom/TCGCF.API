@@ -21,5 +21,10 @@ namespace TCGCF.API.Entities
         [ForeignKey("CardId")]
         public Card Card { get; set; }
         public int CardId { get; set; }
+
+        public string LanguageString() { 
+            ELanguage enumLanguage = (ELanguage)LanguageName;
+            return enumLanguage.ToString();
+        }
     }
 }

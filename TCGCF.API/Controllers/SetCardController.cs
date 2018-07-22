@@ -46,6 +46,12 @@ namespace TCGCF.API.Controllers
 
                 var cardsForSet = _cardInfoRepository.GetCardsForSet(abbr, setAbbr);
 
+                if (cardsForSet == null)
+                {
+                    _logger.LogInformation($"Cards with abbr {abbr} and setAbbr {setAbbr} were not found.");
+                    return NotFound();
+                }
+
                 var cardsForSetResults = Mapper.Map<IEnumerable<CardNoIdDTO>>(cardsForSet);
 
                 return Ok(cardsForSetResults);

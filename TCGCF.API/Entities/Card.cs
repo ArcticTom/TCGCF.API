@@ -43,11 +43,9 @@ namespace TCGCF.API.Entities
         [Required]
         public string Toughness { get; set; }
 
-        [Required]
-        public int Loyalty { get; set; }
+        public int? Loyalty { get; set; }
 
-        [Required]
-        public int LinkedCard { get; set; }
+        public int? LinkedCard { get; set; }
 
         public ICollection<CardsInDeck> CardsInDeck { get; set; } = new List<CardsInDeck>();
 

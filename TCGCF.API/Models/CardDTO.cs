@@ -10,7 +10,7 @@ namespace TCGCF.API.Models
         
         public string Name { get; set; }
 
-        public int PrintNumber { get; set; }
+        public string Number { get; set; }
 
         public string FlavorText { get; set; }
 
@@ -24,13 +24,13 @@ namespace TCGCF.API.Models
 
         public int CMC { get; set; }
 
-        public int Power { get; set; }
+        public string Power { get; set; }
 
-        public int Toughness { get; set; }
+        public string Toughness { get; set; }
 
-        public int Loyalty { get; set; }
+        public int? Loyalty { get; set; }
 
-        public int LinkedCard { get; set; }
+        public int? LinkedCard { get; set; }
 
         public LegalityDTO Legality { get; set; } = new LegalityDTO();
 

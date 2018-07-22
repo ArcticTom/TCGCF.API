@@ -35,7 +35,7 @@ namespace TCGCF.API.Controllers
             {
                 var gameEntities = _cardInfoRepository.GetGames();
 
-                var results = Mapper.Map<IEnumerable<GameDTO>>(gameEntities);
+                var results = Mapper.Map<IEnumerable<GameWithNoSetsDTO>>(gameEntities);
 
                 return Ok(results);
             }
@@ -50,21 +50,28 @@ namespace TCGCF.API.Controllers
 
         //get specific game with abbr
         [HttpGet("{abbr}")]
-        public IActionResult GetGame(string abbr)
+        public IActionResult GetGame(string abbr, bool includeSets = false)
         {
             try
             {
 
-                var game = _cardInfoRepository.GetGame(abbr);
+                var game = _cardInfoRepository.GetGame(abbr, includeSets);
 
                 if (game == null)
                 {
                     return NotFound();
                 }
 
-                var gameResult = Mapper.Map<GameDTO>(game);
+                if (includeSets)
+                {
+                    var gameResult = Mapper.Map<GameDTO>(game);
 
-                return Ok(gameResult);
+                    return Ok(gameResult);
+                }
+
+                var gameWithNoSetsResult = Mapper.Map<GameWithNoSetsDTO>(game);
+
+                return Ok(gameWithNoSetsResult);
 
             }
             catch (Exception ex)

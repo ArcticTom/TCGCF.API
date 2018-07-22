@@ -1,8 +1,9 @@
 namespace TCGCF.API.Models
 {
+    public enum ColorEnum { White, Red, Black, Blue, Green, Colorless }
     public class ColorDTO
     {
-        public int Name { get; set; }
+        public string Name { get; set; }
 
     }
 }

@@ -51,11 +51,15 @@ namespace TCGCF.API.Entities
         //set ModifiedDate when a record is saved
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
-            foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
-            {
-                entry.Property("ModifiedDate").CurrentValue = DateTime.Now;
-            }
-            return await base.SaveChangesAsync();
+            try {
+                    foreach (var entry in ChangeTracker.Entries().Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+                    {
+                        entry.Property("ModifiedDate").CurrentValue = DateTime.Now;
+                    }
+                    return await base.SaveChangesAsync();
+                } catch (Exception e) {
+                    return 0;
+                }
         }
 
 

@@ -18,5 +18,10 @@ namespace TCGCF.API.Entities
         [ForeignKey("CardId")]
         public Card Card { get; set; }
         public int CardId { get; set; }
+
+        public string RarityName() { 
+            ERarity enumRarity = (ERarity)Name;
+            return enumRarity.ToString();
+         }
     }
 }

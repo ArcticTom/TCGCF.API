@@ -14,7 +14,6 @@ namespace TCGCF.API.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("api/maintenance")]
-    [ValidateModel]
     [ApiVersion("0.1")]     //api version supported
     public class MaintenanceController : Controller
     {
