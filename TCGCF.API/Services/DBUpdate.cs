@@ -23,11 +23,13 @@ namespace TCGCF.API.Services
 
             try
             {   
+                //create dbcontext options from config
                 var optionsBuilder = new DbContextOptionsBuilder<CardInfoContext>();
                 optionsBuilder.UseNpgsql(config["connectionStrings:TCGCardFetcher"]);
 
                 using (CardInfoContext context = new CardInfoContext(optionsBuilder.Options))
                 {
+                    //set base game data
                     List<Game> _sample = new List<Game>
                     {
                         new Game() {
@@ -118,6 +120,7 @@ namespace TCGCF.API.Services
       
                     };
 
+                    //empty all data before records are added
                     context.Database.ExecuteSqlCommand("TRUNCATE TABLE \"Games\" RESTART IDENTITY CASCADE;");
 
                     context.Games.AddRange(_sample);
@@ -125,31 +128,39 @@ namespace TCGCF.API.Services
                     await context.SaveChangesAsync();
                 }
 
+                //read set data from json file
                 JObject jObject = JObject.Load(new JsonTextReader(File.OpenText("enrichData.json")));
                 JArray resources = (JArray)jObject["set"];
+
+                //fetch more data for each set from online, bind to the model and enrich it
                 foreach (var set in resources)
                 {
                     jsonresult = await DownloadJSON("https://mtgjson.com/json/"+ set["id"].ToString() +"-x.json");
 
+                    if(jsonresult != null) {
+
                         using (CardInfoContext context = new CardInfoContext(optionsBuilder.Options))
                         {
-                            if(jsonresult != null) {
 
-                                var modelresult = ConvertToModel(jsonresult);
-                                var enrichedModel = EnrichModel(modelresult);
-                                context.Sets.Add(enrichedModel);
-                                var nulls = enrichedModel.Cards.Where(item => item.Power == null);
-                                foreach(Card card in nulls) {
-                                    card.Power = " ";
-                                    card.Toughness = " ";
-                                }
-                                context.Cards.UpdateRange(nulls);
-                    
-                                await context.SaveChangesAsync();
+                            var modelresult = ConvertToModel(jsonresult);
+                            var enrichedModel = EnrichModel(modelresult);
+
+                            //add set to context
+                            context.Sets.Add(enrichedModel);
+
+                            //set power and toughness even when null
+                            var nulls = enrichedModel.Cards.Where(item => item.Power == null);
+                            foreach(Card card in nulls) {
+                                card.Power = " ";
+                                card.Toughness = " ";
                             }
 
-
+                            //update cards in context
+                            context.Cards.UpdateRange(nulls);
+                    
+                            await context.SaveChangesAsync();
                         }
+                    }
                 }
             }
             catch (Exception ex)
@@ -167,6 +178,7 @@ namespace TCGCF.API.Services
             {
                 using (var result = await client.GetAsync(url))
                 {
+                    //if successful
                     if (result.IsSuccessStatusCode)
                     {
                         var jsonresult = await result.Content.ReadAsStringAsync();
@@ -181,14 +193,18 @@ namespace TCGCF.API.Services
 
             try
             {
+                //deserialize json into import model
                 var importSet = JsonConvert.DeserializeObject<ImportSet>(json);
 
+                //use automapper to map into correct model
                 var convertedModel = Mapper.Map<Set>(importSet);
 
                 //TODO beautify
+                //Manual mapping that I couldn't do in automapper
                 #region manual mapping
                 foreach(ImportCard card in importSet.Cards) {
 
+                    //verify that the card has a number
                     if(card.MciNumber != null) {
 
                         //first to allow for duplicates in data
@@ -332,13 +348,22 @@ namespace TCGCF.API.Services
 
         public static Set EnrichModel(Set model) {
 
-            JObject jObject = JObject.Load(new JsonTextReader(File.OpenText("enrichData.json")));
-            JArray resources = (JArray)jObject["set"];
-            foreach (var set in resources.Where(obj => obj["id"].Value<string>() == model.Abbreviation))
+            try
             {
-                model.Story = set["story"].ToString();
-                model.Symbol = set["symbol"].ToString();
-                model.GameId = 1;
+                //enrich set data from json
+                JObject jObject = JObject.Load(new JsonTextReader(File.OpenText("enrichData.json")));
+                JArray resources = (JArray)jObject["set"];
+                //get each set based on the abbreviation
+                foreach (var set in resources.Where(obj => obj["id"].Value<string>() == model.Abbreviation))
+                {
+                    model.Story = set["story"].ToString();
+                    model.Symbol = set["symbol"].ToString();
+                    model.GameId = 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
             }
 
             return model;

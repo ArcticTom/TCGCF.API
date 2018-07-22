@@ -169,7 +169,7 @@ namespace TCGCF.API
             //enable IP throttling
             app.UseIpRateLimiting();
 
-            //tell automapper all mappings used between Entities and Models to remove all manual mapping work
+            //tell automapper all mappings used between Entities and Models to remove manual mapping work
             AutoMapper.Mapper.Initialize(c =>
             {
                 c.CreateMap<Set, SetWithNoCardsDTO>();
