@@ -23,7 +23,7 @@ namespace TCGCF.API.Entities
         public string Story { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [MaxLength(20)]
         public string Symbol { get; set; }
 
         [Required]

@@ -124,6 +124,7 @@ namespace TCGCF.API
             });
 
             //add xml to supported input and output data formats
+            //add antiforgerytokens
             //add ssl support
             services.AddMvc(opt =>
             {
@@ -132,6 +133,7 @@ namespace TCGCF.API
                     opt.SslPort = 44312;
                 }
                 opt.Filters.Add(new RequireHttpsAttribute());
+                opt.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
             }
             ).AddMvcOptions(o => o.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter())).AddMvcOptions(o => o.InputFormatters.Add(new XmlDataContractSerializerInputFormatter()));
 

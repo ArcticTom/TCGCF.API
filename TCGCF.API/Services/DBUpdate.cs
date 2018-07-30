@@ -20,9 +20,7 @@ namespace TCGCF.API.Services
         public static async Task<string> Begin(IConfiguration config) {
 
             var jsonresult = "";
-
-            try
-            {   
+  
                 //create dbcontext options from config
                 var optionsBuilder = new DbContextOptionsBuilder<CardInfoContext>();
                 optionsBuilder.UseNpgsql(config["connectionStrings:TCGCardFetcher"]);
@@ -162,11 +160,6 @@ namespace TCGCF.API.Services
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
 
             return jsonresult;
         }
@@ -191,8 +184,6 @@ namespace TCGCF.API.Services
 
         public static Set ConvertToModel(string json) {
 
-            try
-            {
                 //deserialize json into import model
                 var importSet = JsonConvert.DeserializeObject<ImportSet>(json);
 
@@ -338,18 +329,11 @@ namespace TCGCF.API.Services
                 #endregion
 
                 return convertedModel;
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
 
         }
 
         public static Set EnrichModel(Set model) {
 
-            try
-            {
                 //enrich set data from json
                 JObject jObject = JObject.Load(new JsonTextReader(File.OpenText("enrichData.json")));
                 JArray resources = (JArray)jObject["set"];
@@ -360,11 +344,6 @@ namespace TCGCF.API.Services
                     model.Symbol = set["symbol"].ToString();
                     model.GameId = 1;
                 }
-            }
-            catch (Exception ex)
-            {
-                return null;
-            }
 
             return model;
         }
