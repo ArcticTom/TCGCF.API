@@ -12,7 +12,9 @@ using TCGCF.API.Services;
 
 namespace TCGCF.API.Controllers
 {
+
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Policy = "SuperUsers")]
     [Route("api/maintenance")]
     [ApiVersion("0.1")]     //api version supported
     public class MaintenanceController : Controller

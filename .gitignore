@@ -263,3 +263,9 @@ __pycache__/
 /TCGCF.API/Ignore
 
 TCGCF\.API/\.vscode/
+
+TCGCF\.API/appSettings\.json
+
+TCGCF\.API/appSettings\.Production\.json
+
+TCGCF\.API/certificate\.json
